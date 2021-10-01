@@ -97,11 +97,23 @@ app.get("/publicChannelsList/:teamId", async (req, res) => {
   }
 });
 
-app.post("/messageType", async (req, res) => {
+app.post("/messageTypes", async (req, res) => {
   try {
     const { name, postTo } = req.body;
     await MessageType.create({ name, postTo });
     res.status(201).send("Added!");
+  } catch (error) {
+    res.status(500).send(`Something went wrong: ${error}`);
+  }
+});
+
+app.get("/messageTypes", async (req, res) => {
+  try {
+    const messageTypes = await MessageType.find({}).populate({
+      path: "postTo.team",
+      select: { accessToken: 0 },
+    });
+    res.status(200).json(messageTypes);
   } catch (error) {
     res.status(500).send(`Something went wrong: ${error}`);
   }
