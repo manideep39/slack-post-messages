@@ -1,0 +1,78 @@
+{
+  "view": {
+    "title": {
+      "type": "plain_text",
+      "text": "Broadcast Message",
+      "emoji": true
+    },
+    "callback_id": "broadcast_message",
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit",
+      "emoji": true
+    },
+    "type": "modal",
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel",
+      "emoji": true
+    },
+    "blocks": [
+      {
+        "block_id": "broadcastName",
+        "type": "input",
+        "element": {
+          "type": "static_select",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Select a broadcast",
+            "emoji": true
+          },
+          "options": [
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "Yes",
+                "emoji": true
+              },
+              "value": "1"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "No",
+                "emoji": true
+              },
+              "value": "0"
+            }
+          ],
+          "action_id": "broadcastName"
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Name",
+          "emoji": true
+        }
+      },
+      {
+        "block_id": "message",
+        "type": "input",
+        "element": {
+          "type": "plain_text_input",
+          "multiline": true,
+          "action_id": "message",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Enter your message",
+            "emoji": true
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Message",
+          "emoji": true
+        }
+      }
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const messageTypeSchema = Schema({
+const broadcastSchema = Schema({
   name: { type: String, required: true, trim: true },
   postTo: [
     {
@@ -11,4 +11,4 @@ const messageTypeSchema = Schema({
   ],
 });
 
-module.exports = mongoose.model("messageTypes", messageTypeSchema);
+module.exports = mongoose.model("broadcasts", broadcastSchema);
