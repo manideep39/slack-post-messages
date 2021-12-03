@@ -11,8 +11,6 @@ async function postMessage(accessToken, channelId, message) {
     data: {
       channel: channelId,
       text: message,
-      as_user: false,
-      username: "Masai School",
     },
   });
   return response;
