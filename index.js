@@ -147,7 +147,9 @@ app.post("/slack/interactive-endpoint", async (req, res) => {
         const { data } = await postMessage(
           team.accessToken,
           channelId,
-          broadcastMessage
+          broadcastMessage,
+          as_user: false,
+          username: "Masai School"
         );
         data.ok
           ? response.success.push({ workspace: team.name })
