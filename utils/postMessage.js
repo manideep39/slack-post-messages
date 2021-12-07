@@ -11,6 +11,8 @@ async function postMessage(accessToken, channelId, message) {
     data: {
       channel: channelId,
       text: message,
+      username: process.env.USERNAME,
+      icon_url: process.env.ICON_URL,
     },
   });
   return response;
