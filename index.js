@@ -15,6 +15,7 @@ app.use(
   })
 );
 app.use(cors());
+app.use(express.static("public"));
 
 const Team = require("./models/team");
 const Broadcast = require("./models/broadcast");
