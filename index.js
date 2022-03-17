@@ -58,6 +58,10 @@ app.get("/callback", generateAccessToken, async (req, res) => {
   }
 });
 
+app.get("/", async (req, res) => {
+  res.sendFile(path.join(__dirname, "static/index.html"));
+})
+
 app.get("/teams", async (req, res) => {
   try {
     const teams = await Team.find({}, { accessToken: 0 }).lean();
@@ -89,7 +93,7 @@ app.get("/publicChannelsList/:teamId", async (req, res) => {
           }
         })
         .map(({ name, id }) => ({ name, id }));
-      res.status(200).json({ channels });
+      res.status(200).json(channels);
     } else {
       res.send(data.error);
     }
@@ -107,6 +111,15 @@ app.post("/broadcasts", async (req, res) => {
     res.status(500).send(`Something went wrong: ${error}`);
   }
 });
+
+app.delete("/broadcasts/:broadcastId", async (req, res) => {
+  try {
+    await Broadcast.deleteOne({ _id: req.params.broadcastId });
+    res.send("Deleted!")
+  } catch (error) {
+    res.status(500).send(`Something went wrong: ${error}`);
+  }
+})
 
 app.get("/broadcasts", async (req, res) => {
   try {
