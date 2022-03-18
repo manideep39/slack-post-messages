@@ -7,6 +7,161 @@
     <title>Post</title>
   </head>
   <body>
-    <h1 style="text-align: center">Broadcast</h1>
+    <h2>Create Broadcast</h2>
+    <form id="broadcast">
+      <input type="text" placeholder="Broadcast name" id="broadcastName" />
+      <select id="teams">
+        <option value="">Select workspace</option>
+      </select>
+      <select id="channels">
+        <option value="">Select channel</option>
+      </select>
+      <input type="submit" value="Add" />
+    </form>
+    <ul id="locations"></ul>
+    <button id="create-broadcast">Submit</button>
+    <h2>Existing Broadcasts</h2>
+    <div id="broadcasts-list"></div>
   </body>
+  <script>
+    const baseUrl = "https://5aac-223-178-59-243.ngrok.io";
+    const broadcastCenters = { name: "", postTo: [] };
+    let allBroadcasts = [];
+    let teams = [];
+    let channels = [];
+
+    const broadcast = document.querySelector("#broadcast");
+    broadcast.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const broadcastFormFields = event.target.elements;
+      const broadcastName =
+        broadcastFormFields.namedItem("broadcastName").value;
+      const teamId = broadcastFormFields.namedItem("teams").value;
+      const teamName = teams.find((team) => team.teamId == teamId).name;
+      const channelId = broadcastFormFields.namedItem("channels").value;
+      const channelName = channels.find(
+        (channel) => channel.id == channelId
+      ).name;
+
+      broadcastCenters.name = broadcastName;
+      broadcastCenters.postTo.push({
+        team: teams.find((team) => team.teamId == teamId)._id,
+        teamName,
+        channelId: channelId,
+        channelName,
+      });
+
+      displayBroadcastList();
+    });
+
+    function displayBroadcastList() {
+      const locations = document.querySelector("#locations");
+      locations.innerHTML = "";
+      const locationsList = broadcastCenters.postTo.map(
+        ({ teamName, channelName }, idx) =>
+          `<li>${teamName} -> ${channelName} <button id=${idx} onclick="removeBroadcastLocation()">Remove</button></li>`
+      );
+      locations.innerHTML = locationsList;
+    }
+
+    function removeBroadcastLocation() {
+      broadcastCenters.postTo = broadcastCenters.postTo.filter(
+        (ele, idx) => idx != event.target.id
+      );
+      displayBroadcastList();
+    }
+
+    const createBroadcast = document.querySelector("#create-broadcast");
+    createBroadcast.addEventListener("click", () => {
+      broadcastCenters.name = document.querySelector("#broadcastName").value;
+      fetch(`${baseUrl}/broadcasts`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(broadcastCenters),
+      })
+        .then(() => location.reload())
+        .catch((err) => console.log(err));
+    });
+
+    function createOptions(data, selectTag, id, label) {
+      selectTag.innerHTML = "";
+      const options = data
+        .map(function (option) {
+          return `<option value=${option[id]}>${option.name}</option>`;
+        })
+        .join("");
+      selectTag.innerHTML = `<option value=''>${label}</option>` + options;
+    }
+
+    function deleteBroadcast() {
+      fetch(`${baseUrl}/broadcasts/${event.target.id}`, {
+        method: "DELETE",
+      })
+        .then(() => location.reload())
+        .catch((err) => console.log(err));
+    }
+
+    function updateBroadcast() {
+      const broadcast = allBroadcasts.find(({_id}) => _id == event.target.className);
+      document.querySelector("#broadcastName").value = broadcast?.name;
+      broadcastCenters.name = broadcast?.name;
+      broadcastCenters.postTo = broadcast?.postTo;
+      displayBroadcastList();
+    }
+
+    window.onload = () => {
+      fetch(`${baseUrl}/broadcasts`)
+        .then((response) => response.json())
+        .then((data) => {
+          allBroadcasts = data;
+          data.map(({ _id, name, postTo }) => {
+            const broadcastName = `<p><b>Name:</b> ${name} <button id=${_id} onclick="deleteBroadcast()">Delete</button> <button class=${_id} onclick="updateBroadcast()">Update</button></p>`;
+            const broadcastsList = document.querySelector("#broadcasts-list");
+            broadcastsList.innerHTML +=
+              broadcastName +
+              postTo
+                .map(
+                  ({ teamName, channelName }) =>
+                    `<li>${teamName} : ${channelName}</li>`
+                )
+                .join("");
+          });
+        });
+
+      fetch(`${baseUrl}/teams`)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (teamsData) {
+          teams = teamsData;
+          const teamsSelectTag = document.querySelector("#teams");
+          createOptions(
+            teamsData,
+            teamsSelectTag,
+            "teamId",
+            "Select workspace"
+          );
+          teamsSelectTag.addEventListener("change", (event) => {
+            const teamId = event.currentTarget.value;
+            fetch(`${baseUrl}/publicChannelsList/${teamId}`)
+              .then(function (response) {
+                return response.json();
+              })
+              .then(function (channelsData) {
+                channels = channelsData;
+                const channelsSelectTag = document.querySelector("#channels");
+                createOptions(
+                  channelsData,
+                  channelsSelectTag,
+                  "id",
+                  "Select channel"
+                );
+              });
+          });
+        });
+    };
+  </script>
 </html>
