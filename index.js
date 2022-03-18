@@ -60,7 +60,7 @@ app.get("/callback", generateAccessToken, async (req, res) => {
 
 app.get("/", async (req, res) => {
   res.sendFile(path.join(__dirname, "static/index.html"));
-})
+});
 
 app.get("/teams", async (req, res) => {
   try {
@@ -105,8 +105,12 @@ app.get("/publicChannelsList/:teamId", async (req, res) => {
 app.post("/broadcasts", async (req, res) => {
   try {
     const { name, postTo } = req.body;
-    await Broadcast.create({ name, postTo });
-    res.status(201).send("Added!");
+    await Broadcast.findOneAndUpdate(
+      { name: name },
+      { name, postTo },
+      { upsert: true }
+    );
+    res.status(200).send("Success!");
   } catch (error) {
     res.status(500).send(`Something went wrong: ${error}`);
   }
@@ -115,11 +119,11 @@ app.post("/broadcasts", async (req, res) => {
 app.delete("/broadcasts/:broadcastId", async (req, res) => {
   try {
     await Broadcast.deleteOne({ _id: req.params.broadcastId });
-    res.send("Deleted!")
+    res.send("Deleted!");
   } catch (error) {
     res.status(500).send(`Something went wrong: ${error}`);
   }
-})
+});
 
 app.get("/broadcasts", async (req, res) => {
   try {
