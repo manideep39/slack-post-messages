@@ -7,16 +7,35 @@
     <title>Post</title>
     <style>
       body {
-        font-family:Verdana, Geneva, Tahoma, sans-serif
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
       }
     </style>
   </head>
-  <body style="margin: 0 10%;">
+  <body style="margin: 0 10%">
     <h1>Post Admin UI</h1>
-    <a href="https://slack.com/oauth/v2/authorize?client_id=2125375846757.2555612956403&scope=channels:read,chat:write,commands,users:read,users:read.email,chat:write.customize,chat:write.public&user_scope="><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
-    <p>If workspace is not found in the select workspace dropdown, 
-    click on Add to Slack button and give permission to the respective workspace.</p>
+    <a
+      href="https://slack.com/oauth/v2/authorize?client_id=2125375846757.2555612956403&scope=channels:read,chat:write,commands,users:read,users:read.email,chat:write.customize,chat:write.public&user_scope="
+      ><img
+        alt="Add to Slack"
+        height="40"
+        width="139"
+        src="https://platform.slack-edge.com/img/add_to_slack.png"
+        srcset="
+          https://platform.slack-edge.com/img/add_to_slack.png    1x,
+          https://platform.slack-edge.com/img/add_to_slack@2x.png 2x
+        "
+    /></a>
+    <p style="color: red">
+      To do any operations like creating, updating and deleting broadcasts, you
+      need a PIN.
+    </p>
+    <input type="text" id="pin" placeholder="Enter PIN" />
     <h2>Create Broadcast</h2>
+    <p>
+      Give a meaningful name to your broadcast and select the workspace-channel
+      combination where your message want to go. You can add as many
+      workspace-channel combination for each broadcast.
+    </p>
     <form id="broadcast">
       <input type="text" placeholder="Broadcast name" id="broadcastName" />
       <select id="teams">
@@ -26,6 +45,11 @@
         <option value="">Select channel</option>
       </select>
       <input type="submit" value="Add" />
+      <p style="color: gray">
+        If the workspace you are looking for is not found in the select
+        workspace dropdown, click on Add to Slack button and give permission to
+        the respective workspace.
+      </p>
     </form>
     <ul id="locations"></ul>
     <button id="create-broadcast">Submit</button>
@@ -66,10 +90,12 @@
     function displayBroadcastList() {
       const locations = document.querySelector("#locations");
       locations.innerHTML = "";
-      const locationsList = broadcastCenters.postTo.map(
-        ({ teamName, channelName }, idx) =>
-          `<li>${teamName} --> ${channelName} <button id=${idx} onclick="removeBroadcastLocation()">Remove</button></li>`
-      ).join('');
+      const locationsList = broadcastCenters.postTo
+        .map(
+          ({ teamName, channelName }, idx) =>
+            `<li>${teamName} --> ${channelName} <button id=${idx} onclick="removeBroadcastLocation()">Remove</button></li>`
+        )
+        .join("");
       locations.innerHTML = locationsList;
     }
 
@@ -83,7 +109,9 @@
     const createBroadcast = document.querySelector("#create-broadcast");
     createBroadcast.addEventListener("click", () => {
       broadcastCenters.name = document.querySelector("#broadcastName").value;
-      fetch(`${baseUrl}/broadcasts`, {
+      const pin = document.querySelector("#pin").value;
+
+      fetch(`${baseUrl}/broadcasts?pin=${pin}`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -106,7 +134,9 @@
     }
 
     function deleteBroadcast() {
-      fetch(`${baseUrl}/broadcasts/${event.target.id}`, {
+      const pin = document.querySelector("#pin").value;
+
+      fetch(`${baseUrl}/broadcasts/${event.target.id}?pin=${pin}`, {
         method: "DELETE",
       })
         .then(() => location.reload())
@@ -114,7 +144,9 @@
     }
 
     function updateBroadcast() {
-      const broadcast = allBroadcasts.find(({_id}) => _id == event.target.className);
+      const broadcast = allBroadcasts.find(
+        ({ _id }) => _id == event.target.className
+      );
       document.querySelector("#broadcastName").value = broadcast?.name;
       broadcastCenters.name = broadcast?.name;
       broadcastCenters.postTo = broadcast?.postTo;

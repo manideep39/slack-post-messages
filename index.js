@@ -8,6 +8,14 @@ const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
 
+const Team = require("./models/team");
+const Broadcast = require("./models/broadcast");
+
+const generateAccessToken = require("./middleware/generateAccessToken");
+const secureRoute = require("./middleware/secureRoute"); 
+
+const postMessage = require("./utils/postMessage");
+
 app.use(express.json());
 app.use(
   express.urlencoded({
@@ -16,13 +24,6 @@ app.use(
 );
 app.use(cors());
 app.use(express.static("public"));
-
-const Team = require("./models/team");
-const Broadcast = require("./models/broadcast");
-
-const generateAccessToken = require("./middleware/generateAccessToken");
-
-const postMessage = require("./utils/postMessage");
 
 app.listen(process.env.PORT || 3000, () => {
   try {
@@ -102,7 +103,7 @@ app.get("/publicChannelsList/:teamId", async (req, res) => {
   }
 });
 
-app.post("/broadcasts", async (req, res) => {
+app.post("/broadcasts", secureRoute, async (req, res) => {
   try {
     const { name, postTo } = req.body;
     await Broadcast.findOneAndUpdate(
@@ -116,7 +117,7 @@ app.post("/broadcasts", async (req, res) => {
   }
 });
 
-app.delete("/broadcasts/:broadcastId", async (req, res) => {
+app.delete("/broadcasts/:broadcastId", secureRoute, async (req, res) => {
   try {
     await Broadcast.deleteOne({ _id: req.params.broadcastId });
     res.send("Deleted!");
