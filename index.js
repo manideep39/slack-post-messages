@@ -105,7 +105,8 @@ app.get("/publicChannelsList/:teamId", async (req, res) => {
 
 app.post("/broadcasts", secureRoute, async (req, res) => {
   try {
-    const { name, postTo } = req.body;
+    let { name, postTo } = req.body;
+    name = name || 'No Name Given';
     await Broadcast.findOneAndUpdate(
       { name: name },
       { name, postTo },
